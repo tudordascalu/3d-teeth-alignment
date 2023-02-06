@@ -3,10 +3,12 @@ The role of this script is to process label files and output centroids.
 """
 import glob
 import json
+import os
 
 import numpy as np
 import trimesh
 from sklearn.preprocessing import LabelEncoder
+from tqdm import tqdm
 
 
 class CentroidMapper:
@@ -56,13 +58,16 @@ class ToothLabelEncoder:
 
 if __name__ == "__main__":
     # Constants
-    JAW = "lower"  # "upper" | "lower"
+    JAW = "upper"  # "upper" | "lower"
     encoder = ToothLabelEncoder.encoder(JAW)
     centroid_mapper = CentroidMapper(17)
     # Compute ids
     ids = list(map(lambda x: x.split("/")[-1], glob.glob("../data/raw/patient_labels/*")))
-    for id in ids:
-        mesh = trimesh.load(f"../data/raw/patient_obj/{id}/{id}_{JAW}.obj", process=False)
+    for id in tqdm(ids, total=len(ids)):
+        try:
+            mesh = trimesh.load(f"../data/raw/patient_obj/{id}/{id}_{JAW}.obj", process=False)
+        except:
+            mesh = trimesh.load(f"../data/raw/patient_stl/{id}/{id}_{JAW}.stl", process=False)
         with open(f"../data/raw/patient_labels/{id}/{id}_{JAW}.json", "r") as f:
             labels = json.load(f)
         instance_labels = np.array(labels["instances"])
@@ -77,4 +82,6 @@ if __name__ == "__main__":
                 tooth_labels[instance_labels == tooth_instance_labels_unique[-1]] = 17
         # Find centroids
         centroids = centroid_mapper(mesh.vertices, tooth_labels)
-        print(centroids)
+        if not os.path.exists(f"../data/processed/{id}"):
+            os.mkdir(f"../data/processed/{id}")
+        np.save(f"../data/processed/{id}/centroids_{JAW}.npy", centroids)
