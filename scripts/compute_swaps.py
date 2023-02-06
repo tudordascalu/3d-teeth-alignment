@@ -1,9 +1,12 @@
 """
 Perform swaps and slight nudges to the centroid within 1 standard deviation in X, Y, Z.
+This should run following centroid computation.
 """
 import glob
+import os
 
 import numpy as np
+from tqdm import tqdm
 
 
 class ToothSwapper:
@@ -44,6 +47,10 @@ if __name__ == "__main__":
     MAX_SWAPS = 3
     ids = list(map(lambda x: x.split("/")[-1], glob.glob("../data/processed/*")))
     tooth_swapper = ToothSwapper(MAX_SWAPS)
-    for id in ids:
+    for id in tqdm(ids, total=len(ids)):
         centroids = np.load(f"../data/processed/{id}/centroids_{JAW}.npy")
         centroids, labels = tooth_swapper(centroids, np.arange(0, 17))
+        if not os.path.exists(f"../data/final/{id}"):
+            os.mkdir(f"../data/final/{id}")
+        np.save(f"../data/final/{id}/centroids_{JAW}.npy", centroids)
+        np.save(f"../data/final/{id}/labels_{JAW}.npy", labels)
