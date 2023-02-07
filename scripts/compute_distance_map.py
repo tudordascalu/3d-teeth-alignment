@@ -8,10 +8,12 @@ from scripts.utils.distance_mapper import DistanceMapper
 from scripts.utils import arg_parser
 
 if __name__ == "__main__":
+    # Parse args
     parser = arg_parser.create_parser()
     args = parser.parse_args()
     dir = args.dir  # "final" | "processed"
     jaw = args.jaw
+
     ids = list(map(lambda x: x.split("/")[-1], glob.glob(f"../data/{dir}/*")))
     distance_mapper = DistanceMapper()
     for id in tqdm(ids, total=len(ids)):

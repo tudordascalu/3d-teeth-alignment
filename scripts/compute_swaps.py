@@ -8,6 +8,8 @@ import os
 import numpy as np
 from tqdm import tqdm
 
+from scripts.utils import arg_parser
+
 
 class ToothSwapper:
     def __init__(self, max_swaps=2):
@@ -42,15 +44,18 @@ class ToothSwapper:
 
 
 if __name__ == "__main__":
-    # Constants
-    JAW = "upper"
-    MAX_SWAPS = 3
+    # Parse args
+    parser = arg_parser.create_parser()
+    args = parser.parse_args()
+    jaw = args.jaw
+    max_swaps = args.swaps
+
     ids = list(map(lambda x: x.split("/")[-1], glob.glob("../data/processed/*")))
-    tooth_swapper = ToothSwapper(MAX_SWAPS)
+    tooth_swapper = ToothSwapper(max_swaps)
     for id in tqdm(ids, total=len(ids)):
-        centroids = np.load(f"../data/processed/{id}/centroids_{JAW}.npy")
+        centroids = np.load(f"../data/processed/{id}/centroids_{jaw}.npy")
         centroids, labels = tooth_swapper(centroids, np.arange(0, 17))
         if not os.path.exists(f"../data/final/{id}"):
             os.mkdir(f"../data/final/{id}")
-        np.save(f"../data/final/{id}/centroids_{JAW}.npy", centroids)
-        np.save(f"../data/final/{id}/labels_{JAW}.npy", labels)
+        np.save(f"../data/final/{id}/centroids_{jaw}.npy", centroids)
+        np.save(f"../data/final/{id}/labels_{jaw}.npy", labels)

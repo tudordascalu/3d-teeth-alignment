@@ -10,6 +10,8 @@ import trimesh
 from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
 
+from scripts.utils import arg_parser
+
 
 class CentroidMapper:
     """
@@ -58,9 +60,12 @@ class ToothLabelEncoder:
 
 
 if __name__ == "__main__":
-    # Constants
-    JAW = "upper"  # "upper" | "lower"
-    encoder = ToothLabelEncoder.encoder(JAW)
+    # Parse args
+    parser = arg_parser.create_parser()
+    args = parser.parse_args()
+    jaw = args.jaw
+
+    encoder = ToothLabelEncoder.encoder(jaw)
     centroid_mapper = CentroidMapper(17)
     # Compute patient ids
     ids = list(map(lambda x: x.split("/")[-1], glob.glob("../data/raw/patient_labels/*")))
@@ -68,11 +73,11 @@ if __name__ == "__main__":
     for id in tqdm(ids, total=len(ids)):
         # Try to load the patient's jaw mesh in .obj format. If it fails, try to load it in .stl format
         try:
-            mesh = trimesh.load(f"../data/raw/patient_obj/{id}/{id}_{JAW}.obj", process=False)
+            mesh = trimesh.load(f"../data/raw/patient_obj/{id}/{id}_{jaw}.obj", process=False)
         except:
-            mesh = trimesh.load(f"../data/raw/patient_stl/{id}/{id}_{JAW}.stl", process=False)
+            mesh = trimesh.load(f"../data/raw/patient_stl/{id}/{id}_{jaw}.stl", process=False)
         # Load the patient's labels, which are stored in a .json file
-        with open(f"../data/raw/patient_labels/{id}/{id}_{JAW}.json", "r") as f:
+        with open(f"../data/raw/patient_labels/{id}/{id}_{jaw}.json", "r") as f:
             labels = json.load(f)
         # Convert the labels to numpy arrays.
         instance_labels = np.array(labels["instances"])
@@ -93,4 +98,4 @@ if __name__ == "__main__":
         if not os.path.exists(f"../data/processed/{id}"):
             os.mkdir(f"../data/processed/{id}")
         # Save the tooth centroids
-        np.save(f"../data/processed/{id}/centroids_{JAW}.npy", centroids)
+        np.save(f"../data/processed/{id}/centroids_{jaw}.npy", centroids)

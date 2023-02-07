@@ -10,4 +10,5 @@ def create_parser():
                         choices=["lower", "upper"])
     parser.add_argument("-d", "--dir", type=str, help="The type of data to act on.", default="processed",
                         choices=["processed", "final"])
+    parser.add_argument("-s", "--swaps", type=int, help="Maximum number of swaps.", default=3)
     return parser
