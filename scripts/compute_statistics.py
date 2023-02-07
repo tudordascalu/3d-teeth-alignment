@@ -1,19 +1,17 @@
 """
-Compute means and standard deviations for each coordonate in the vertex coordinates for each tooth centroid based on the
-training set.
+Compute means and standard deviations corresponding to (x, y, z) differences between each tooth-tooth centroid difference.
 """
 import numpy as np
 
 if __name__ == "__main__":
     # Constants
-    JAW = "upper"
+    JAW = "lower"
     ids = np.load("../data/split/ids_train.npy")
-    centroids_acc = []
+    distance_map_acc = []
     for id in ids:
-        centroids = np.load(f"../data/processed/{id}/centroids_{JAW}.npy")
-        centroids_acc.append(centroids)
-    centroids_acc = np.array(centroids_acc)
-    centroids_mean = np.mean(centroids_acc, axis=0)
-    centroids_std = np.std(centroids_acc, axis=0)
-    np.save(f"../data/statistics/centroids_mean_{JAW}.npy", centroids_mean)
-    np.save(f"../data/statistics/centroids_std_{JAW}.npy", centroids_std)
+        distance_map = np.load(f"../data/processed/{id}/distance_map_{JAW}.npy")
+        distance_map_acc.append(distance_map)
+    distance_map_mean = np.mean(distance_map_acc, axis=0)
+    distance_map_std = np.std(distance_map_mean, axis=0)
+    np.save(f"../data/statistics/distance_map_mean_{JAW}.npy", distance_map_mean)
+    np.save(f"../data/statistics/distance_map_std_{JAW}.npy", distance_map_std)
