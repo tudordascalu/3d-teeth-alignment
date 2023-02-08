@@ -11,4 +11,5 @@ def create_parser():
     parser.add_argument("-d", "--dir", type=str, help="The type of data to act on.", default="processed",
                         choices=["processed", "final"])
     parser.add_argument("-s", "--swaps", type=int, help="Maximum number of swaps.", default=3)
+    parser.add_argument("-t", "--teeth", type=int, help="Number of teeth.", default=17)
     return parser
