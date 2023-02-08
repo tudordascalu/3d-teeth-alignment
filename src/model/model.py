@@ -8,7 +8,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 
 class AlignmentNet(pl.LightningModule):
-    def __init__(self, lr=1e-3, weight_decay=1e-8, scheduler_patience=10):
+    def __init__(self, config):
         super(AlignmentNet, self).__init__()
         self.save_hyperparameters()
 
@@ -33,13 +33,7 @@ class AlignmentNet(pl.LightningModule):
             torch.nn.ReLU()
         )
 
-        self.lr = lr
-        self.weight_decay = weight_decay
-        self.scheduler_patience = scheduler_patience
-
-        self.lr = lr
-        self.weight_decay = weight_decay
-        self.scheduler_patience = scheduler_patience
+        self.config = config
 
     def forward(self, x):
         x = self.conv_layers(x)
@@ -50,10 +44,11 @@ class AlignmentNet(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = RMSprop(self.parameters(),
-                            lr=self.lr,
-                            weight_decay=self.weight_decay,
+                            lr=float(self.config["learning_rate"]),
+                            weight_decay=float(self.config["weight_decay"]),
                             momentum=0.9)
-        scheduler = ReduceLROnPlateau(optimizer=optimizer, mode="min", patience=self.scheduler_patience, verbose=True)
+        scheduler = ReduceLROnPlateau(optimizer=optimizer, mode="min", patience=self.config["scheduler_patience"],
+                                      verbose=True)
         return {"optimizer": optimizer, "lr_scheduler": {"scheduler": scheduler, "monitor": "train_loss"}}
 
     def training_step(self, batch, batch_idx):
@@ -112,11 +107,6 @@ class AlignmentNet(pl.LightningModule):
         """
         mse_loss = torch.nn.MSELoss()
         loss = mse_loss(y_pred.reshape(-1, 17), y_true.reshape(-1, 17))
-        # Uncomment if we softmax activation is not applied previously
-        # y_pred_row = softmax(y_pred, dim=-1).reshape(-1, 17)
-        # y_pred_col = softmax(y_pred, dim=-2).reshape(-1, 17)
-        # y_true_processed = y_true.reshape(-1, 17)
-        # loss = mse_loss(y_pred_row, y_true_processed) + mse_loss(y_pred_col, y_true_processed)
         return loss
 
     @staticmethod
