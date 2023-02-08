@@ -20,7 +20,7 @@ class TestAlignmentDataset(unittest.TestCase):
         self.assertIsInstance(labels, torch.Tensor)
         self.assertEqual(score_map.dtype, torch.float32)
         self.assertEqual(labels.dtype, torch.float32)
-        self.assertEqual(score_map.shape, torch.Size([17, 17, 1]))
+        self.assertEqual(score_map.shape, torch.Size([1, 17, 17]))
         self.assertEqual(labels.shape, torch.Size([17, 17]))
 
 

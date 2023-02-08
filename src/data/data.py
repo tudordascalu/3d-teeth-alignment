@@ -14,7 +14,7 @@ class AlignmentDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         score_map = torch.from_numpy(np.load(f"{self.data_path}{self.ids[idx]}/score_map_{self.jaw}.npy")).type(
-            torch.float32)
+            torch.float32).permute(2, 0, 1)
         labels = torch.from_numpy(np.load(f"{self.data_path}{self.ids[idx]}/labels_{self.jaw}.npy")).type(torch.int64)
         labels = one_hot(labels, num_classes=17).squeeze(1).type(torch.float32)
         return score_map, labels

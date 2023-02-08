@@ -4,7 +4,7 @@ import yaml
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from torch.utils.data import DataLoader
-
+from pytorch_lightning import loggers
 from src.data.data import AlignmentDataset
 from src.model.model import AlignmentNet
 
@@ -27,11 +27,12 @@ if __name__ == "__main__":
     loader_test = DataLoader(dataset_test, **loader_args)
     # Define model
     model = AlignmentNet(config)
+    logger = loggers.TensorBoardLogger(save_dir=config["checkpoints_path"], name=None)
     trainer_args = dict(max_epochs=config["max_epochs"],
                         callbacks=[ModelCheckpoint(save_top_k=1,
                                                    monitor="val_loss",
-                                                   mode="min",
-                                                   dirpath=config["checkpoints_path"])],
+                                                   mode="min")],
+                        logger=logger,
                         log_every_n_steps=10)
 
     if device.type == "cpu":
