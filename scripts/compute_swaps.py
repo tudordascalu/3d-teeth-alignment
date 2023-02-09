@@ -26,7 +26,7 @@ class ToothSwapper:
         :param labels: array of labels, where each element corresponds to a centroid
         :return: centroids and labels, with swapped teeth
         """
-        for _ in np.arange(np.random.randint(0, self.max_swaps + 1)):
+        for _ in range(np.random.randint(0, self.max_swaps + 1)):
             centroids, labels = self._swap(centroids, labels)
         return centroids, labels
 
