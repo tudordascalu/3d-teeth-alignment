@@ -1,10 +1,10 @@
-import numpy as np
 import torch
 import pytorch_lightning as pl
-from scipy.optimize import linear_sum_assignment
 from torch.nn.functional import softmax
 from torch.optim import RMSprop
 from torch.optim.lr_scheduler import ReduceLROnPlateau
+
+from src.utils.assignment_solver import AssignmentSolver
 
 
 class AlignmentNet(pl.LightningModule):
@@ -32,6 +32,10 @@ class AlignmentNet(pl.LightningModule):
             torch.nn.Linear(17 * 17, 17 * 17),
             torch.nn.ReLU()
         )
+
+        self.mse_loss = torch.nn.MSELoss()
+        self.bce_loss = torch.nn.BCELoss(weight=torch.tensor([0.05, 0.95]))
+        self.assignment_solver = AssignmentSolver()
 
         self.config = config
 
@@ -96,8 +100,7 @@ class AlignmentNet(pl.LightningModule):
         self.log("avg_accuracy", {"test": avg_accuracy})
         self.log("test_loss", avg_loss)
 
-    @staticmethod
-    def _loss(y_pred, y_true):
+    def _loss(self, y_pred, y_true):
         """
         The loss is applied both column-wise and row-wise in order to promote single-class predictions.
 
@@ -105,12 +108,28 @@ class AlignmentNet(pl.LightningModule):
         :param y_true: torch.Tensor of shape (n_batch_size, 17, 17)
         :return: torch.Tensor featuring loss value
         """
-        mse_loss = torch.nn.MSELoss()
-        loss = mse_loss(y_pred.reshape(-1, 17), y_true.reshape(-1, 17))
-        return loss
+        # Compute mean squared error (MSE) loss
+        a = self.mse_loss(y_pred.reshape(-1, 17), y_true.reshape(-1, 17))
 
-    @staticmethod
-    def _accuracy(y_pred, y_true):
+        # Process y_pred and y_true for binary cross entropy (BCE) calculation
+        y_pred_processed = y_pred.clone().detach().numpy()
+        _, y_pred_processed = self.assignment_solver(y_pred_processed)
+        y_pred_processed = torch.from_numpy(y_pred_processed).type(torch.float32)
+        y_pred_processed = (y_pred * y_pred_processed).reshape(-1, 1)
+        y_pred_processed = torch.stack((1 - y_pred_processed, y_pred_processed), dim=1).squeeze()
+        y_true_processed = y_true.reshape(-1, 1)
+        y_true_processed = torch.stack((1 - y_true_processed, y_true_processed), dim=1).squeeze()
+
+        # Compute BCE loss, where all other components are zero
+        b = self.bce_loss(y_pred_processed, y_true_processed)
+
+        # Get lambda value
+        lam = float(self.config["lambda"])
+
+        # Combine MSE and BCE loss using the lambda value
+        return (1 - lam) * a + lam * b
+
+    def _accuracy(self, y_pred, y_true):
         """
         Accuracy is computed as the total number of correctly identified teeth.
         We can also consider computing it as total number of correctly identified misaligned teeth, as we have fewer cases.
@@ -119,104 +138,8 @@ class AlignmentNet(pl.LightningModule):
         :param y_true: torch.Tensor of shape (n_batch_size, 17, 17)
         :return: total number of correctly identified teeth / total number of teeth
         """
-        y_pred_processed, y_true_processed = y_pred.argmax(-1).reshape(-1), y_true.argmax(-1).reshape(-1)
+
+        y_true_processed = y_true.argmax(-1).reshape(-1)
+        y_pred_processed, _ = self.assignment_solver(y_pred.clone().cpu().detach().numpy())
+        y_pred_processed = torch.from_numpy(y_pred_processed).reshape(-1)
         return (y_pred_processed == y_true_processed).sum() / len(y_pred_processed)
-
-# class CentroidMapper:
-#     """
-#     Maps centroids given a set of labels.
-#     """
-#
-#     def __init__(self, n_teeth=17):
-#         """
-#         :param n_teeth: number of teeth
-#         """
-#         self.n_teeth = n_teeth
-#
-#     def __call__(self, mesh, instances):
-#         """
-#         Computes the centroid of each tooth instance.
-#
-#         :param mesh: trimesh.Trimesh :param instances: np.array of shape (len(mesh.vertices),) :return: np.array of
-#         shape (n_teeth, 3) featuring the centroid of each tooth; If tooth is missing, centroid coordinates are (0, 0,
-#         0).
-#         """
-#         # Compute vertices
-#         vertices = mesh.vertices
-#         # Compute unique tooth labels
-#         instances_unique = np.unique(instances)
-#         instances_unique = np.delete(instances_unique, instances_unique == 0)
-#         centroids = np.zeros((self.n_teeth, 3))
-#         for instance in instances_unique:
-#             centroids[instance - 1] = np.mean(vertices[np.where(instance == instances)], axis=0)
-#         return centroids
-
-#
-# class Aligner:
-#     """
-#     This class uses a trained AlignmentNet instance to align a set of tooth labels.
-#     """
-#
-#     def __init__(self, model, distance_means, distance_stds, n_teeth=17):
-#         """
-#         :param model: instance of AlignmentNet
-#         :param distance_means: np.array of shape (17, 17) featuring mean distances between tooth-tooth pairs
-#         :param distance_stds: np.array of shape (17, 17) featuring stds for tooth-tooth pair distances
-#         :param n_teeth: controls how many double teeth should be accounted for
-#         """
-#         self.model = model
-#         self.distance_means = distance_means
-#         self.distance_stds = distance_stds
-#         self.centroid_mapper = CentroidMapper(n_teeth)
-#         self.distance_mapper = DistanceMapper(n_teeth)
-#         self.p_distance_mapper = PDistanceMapper(n_teeth)
-#
-#     def __call__(self, mesh, instances, double_tooth_label=0):
-#         """
-#         This method computes teeth features (coming soon) and a probability distance map from the labels. Next,
-#         it passes the labels through the model. If there are teeth that have been re-aligned, we compute combinations
-#         of all possible re-alignments and pass them through the network with the aim of finding the combination that
-#         yields the larger determinants (lower uncertainty).
-#
-#         :param mesh: trimesh.Trimesh
-#         :param instances: np.array of shape (n,), where n corresponds to the total number of vertices in the mesh
-#         :param double_tooth_label: label of double tooth to be used for distance map
-#         :return: np.array featuring labels post alignment
-#         """
-#         # Compute centroids
-#         centroids = self.centroid_mapper(mesh, instances)
-#         # Compute unique instances
-#         instances_unique = np.unique(instances)
-#         instances_unique = np.delete(instances_unique, instances_unique == 0)
-#         # Align instances
-#         instances_unique_aligned = self._align(centroids, instances_unique, double_tooth_label)
-#         # Re-arrange instances
-#         instances_aligned = np.zeros(instances.shape, dtype=np.int32)
-#         for instance_old, instance_new in zip(np.arange(17), instances_unique_aligned):
-#             instances_aligned[instances == instance_old] = instance_new
-#         return instances_aligned
-#
-#     def _align(self, centroids, instances_unique, double_tooth_label=0):
-#         """
-#         This method computes teeth features (coming soon) and a probability distance map from centroids and instances.
-#
-#         :param centroids: np.array of shape (n_teeth, 3) featuring tooth centroids
-#         :param instances_unique: np.array of shape (n_detected_teeth,)
-#         :param double_tooth_label: label of double tooth to be used for distance map
-#         :return: np.array of shape (n_teeth, ) featuring tooth instances aligned
-#         """
-#         # Compute distance map
-#         distance_map = self.distance_mapper(instances_unique, centroids)
-#         # Compute probability map based on distances
-#         distance_means = np.concatenate(
-#             [self.distance_means, np.expand_dims(self.distance_means[:, double_tooth_label], axis=1)], axis=1)
-#         distance_stds = np.concatenate(
-#             [self.distance_stds, np.expand_dims(self.distance_stds[:, double_tooth_label], axis=1)], axis=1)
-#         p_distance_map = self.p_distance_mapper(instances_unique, distance_map, distance_means, distance_stds)
-#         # Convert to tensor
-#         p_distance_map = torch.from_numpy(p_distance_map).permute(2, 0, 1).type(torch.float32)
-#         # Compute network prediction
-#         output = self.model(p_distance_map.unsqueeze(0)).squeeze().detach().cpu().numpy()
-#         # Solve for unique solution using scipy's implementation of the assignment problem
-#         _, instances_aligned = linear_sum_assignment(output, maximize=True)
-#         return instances_aligned
