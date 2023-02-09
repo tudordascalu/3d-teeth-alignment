@@ -12,4 +12,6 @@ def create_parser():
                         choices=["processed", "final"])
     parser.add_argument("-s", "--swaps", type=int, help="Maximum number of swaps.", default=2)
     parser.add_argument("-t", "--teeth", type=int, help="Number of teeth.", default=17)
+    parser.add_argument("-sm", "--score_mode", type=str, help="The score mode", default="univariate",
+                        choices=["univariate", "multivariate"])
     return parser
