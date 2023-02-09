@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import unittest
 from scipy.stats import multivariate_normal, norm
@@ -54,6 +56,8 @@ class TestScoreMapper(unittest.TestCase):
                     x_score = norm.pdf(distance[0], distance_mean[0], distance_std[0])
                     y_score = norm.pdf(distance[1], distance_mean[1], distance_std[1])
                     z_score = norm.pdf(distance[2], distance_mean[2], distance_std[2])
+                    if math.isnan(x_score) or math.isnan(y_score) or math.isnan(z_score):
+                        raise ValueError("The result of norm.pdf is NaN")
                     expected_score = x_score + y_score + z_score
                 except:
                     expected_score = 0
