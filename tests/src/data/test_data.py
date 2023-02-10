@@ -15,12 +15,12 @@ class TestAlignmentDataset(unittest.TestCase):
         self.assertEqual(len(self.dataset), len(self.ids))
 
     def test_getitem(self):
-        score_map, labels = self.dataset[0]
-        self.assertIsInstance(score_map, torch.Tensor)
+        input, labels = self.dataset[0]
+        self.assertIsInstance(input, torch.Tensor)
         self.assertIsInstance(labels, torch.Tensor)
-        self.assertEqual(score_map.dtype, torch.float32)
+        self.assertEqual(input.dtype, torch.float32)
         self.assertEqual(labels.dtype, torch.float32)
-        self.assertEqual(score_map.shape, torch.Size([1, 17, 17]))
+        self.assertEqual(input.shape, torch.Size([4, 17, 17]))
         self.assertEqual(labels.shape, torch.Size([17, 17]))
 
 
