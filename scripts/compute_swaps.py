@@ -49,13 +49,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
     jaw = args.jaw
     max_swaps = args.swaps
+    n = args.n_samples
 
     ids = list(map(lambda x: x.split("/")[-1], glob.glob("../data/processed/*")))
     tooth_swapper = ToothSwapper(max_swaps)
     for id in tqdm(ids, total=len(ids)):
-        centroids = np.load(f"../data/processed/{id}/centroids_{jaw}.npy")
-        centroids, labels = tooth_swapper(centroids, np.arange(0, 17))
-        if not os.path.exists(f"../data/final/{id}"):
-            os.mkdir(f"../data/final/{id}")
-        np.save(f"../data/final/{id}/centroids_{jaw}.npy", centroids)
-        np.save(f"../data/final/{id}/labels_{jaw}.npy", labels)
+        for i in range(n):
+            centroids = np.load(f"../data/processed/{id}/centroids_{jaw}.npy")
+            centroids, labels = tooth_swapper(centroids, np.arange(0, 17))
+            if not os.path.exists(f"../data/final/{id}"):
+                os.mkdir(f"../data/final/{id}")
+            np.save(f"../data/final/{id}/centroids_{jaw}_{i}.npy", centroids)
+            np.save(f"../data/final/{id}/labels_{jaw}_{i}.npy", labels)

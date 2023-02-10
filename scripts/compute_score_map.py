@@ -16,6 +16,7 @@ if __name__ == "__main__":
     jaw = args.jaw
     n_teeth = args.teeth
     mode = args.score_mode
+    n = args.n_samples
     # Load statistics
     distance_map_mean = np.load(f"../data/statistics/distance_map_mean_{jaw}.npy")
     distance_map_std = np.load(f"../data/statistics/distance_map_std_{jaw}.npy")
@@ -24,6 +25,7 @@ if __name__ == "__main__":
     # Compute ids
     ids = list(map(lambda x: x.split("/")[-1], glob.glob(f"../data/final/*")))
     for id in tqdm(ids, total=len(ids)):
-        distance_map = np.load(f"../data/final/{id}/distance_map_{jaw}.npy")
-        score_map = score_mapper(distance_map, distance_map_mean, distance_map_std, distance_map_cov)
-        np.save(f"../data/final/{id}/score_map_{jaw}.npy", score_map)
+        for i in range(n):
+            distance_map = np.load(f"../data/final/{id}/distance_map_{jaw}_{i}.npy")
+            score_map = score_mapper(distance_map, distance_map_mean, distance_map_std, distance_map_cov)
+            np.save(f"../data/final/{id}/score_map_{jaw}_{i}.npy", score_map)
