@@ -17,7 +17,7 @@ if __name__ == "__main__":
                                    np.load("data/split/ids_test.npy")
     # Define dataset
     dataset_args = dict(data_path=config["data_path"], jaw=config["jaw"])
-    dataset_train = AlignmentDataset(ids=ids_train, **dataset_args)
+    dataset_train = AlignmentDataset(ids=ids_train, n_samples=int(config["n_samples"]), **dataset_args)
     dataset_val = AlignmentDataset(ids=ids_val, **dataset_args)
     dataset_test = AlignmentDataset(ids=ids_test, **dataset_args)
     # Define loaders

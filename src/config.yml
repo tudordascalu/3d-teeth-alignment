@@ -1,9 +1,10 @@
 data_path: data/final/
 checkpoints_path: checkpoints/
-max_epochs: 100
+max_epochs: 50
 batch_size: 8
 learning_rate: 1e-4
-jaw: lower
+jaw: upper
 weight_decay: 1e-8
 scheduler_patience: 10
 lambda: .8
+n_samples: 10

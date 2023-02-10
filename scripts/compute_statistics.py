@@ -38,6 +38,9 @@ if __name__ == "__main__":
     distance_map_acc = np.array(distance_map_acc)
     distance_map_mean = np.mean(distance_map_acc, axis=0)
     distance_map_std = np.std(distance_map_acc, axis=0)
+    # Uncomment the following in order to fit a custom distribution (e.g Laplace) to the data
+    # distance_map_mean_std_mapper = DistanceMapMeanStdMapper(dist=laplace, n_teeth=n_teeth)
+    # distance_map_mean, distance_map_std = distance_map_mean_std_mapper(distance_map_acc)
     distance_map_cov = distance_map_cov_mapper(distance_map_acc)
     np.save(f"../data/statistics/distance_map_mean_{jaw}.npy", distance_map_mean)
     np.save(f"../data/statistics/distance_map_std_{jaw}.npy", distance_map_std)
