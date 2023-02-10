@@ -13,7 +13,7 @@ class AlignmentNet(pl.LightningModule):
         self.save_hyperparameters()
 
         self.conv_layers = torch.nn.Sequential(
-            torch.nn.Conv2d(1, 16, (1, 3), padding="same", bias=False),
+            torch.nn.Conv2d(4, 16, (1, 3), padding="same", bias=False),
             torch.nn.ReLU(),
             torch.nn.MaxPool2d((1, 2)),
             torch.nn.BatchNorm2d(16),
@@ -41,7 +41,7 @@ class AlignmentNet(pl.LightningModule):
 
     def forward(self, x):
         x = self.conv_layers(x)
-        x = self.fc_layers(x)
+        # x = self.fc_layers(x)
         x = x.reshape(-1, 17, 17)
         x = (softmax(x, dim=-1) + softmax(x, dim=-2)) / 2
         return x
