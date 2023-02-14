@@ -13,7 +13,7 @@ class ScoreMapper:
         self.n_teeth = n_teeth
         self.mode = mode
 
-    def __call__(self, distance_map, distance_map_mean, distance_map_std=None, distance_map_cov=None):
+    def __call__(self, distance_map, distance_map_mean, distance_map_std=None, distance_map_cov=None, centroids=None):
         """
 
         :param distance_map: np.array of shape (17, 1) featuring labels for each instance
@@ -44,4 +44,9 @@ class ScoreMapper:
                 except:
                     score = 0
                 score_map[i, j] = score
+        # Set scores to 0s for missing teeth
+        missing_teeth = np.where((centroids == np.array([0, 0, 0])).all(axis=1))[0]
+        score_map[missing_teeth] = np.ones((self.n_teeth, 1)) * -1
+        score_map[:, missing_teeth] = np.ones((self.n_teeth, len(missing_teeth), 1)) * -1
+        score_map[np.arange(self.n_teeth), np.arange(self.n_teeth)] = 0
         return score_map

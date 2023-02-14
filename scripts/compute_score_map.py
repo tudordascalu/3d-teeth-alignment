@@ -26,6 +26,7 @@ if __name__ == "__main__":
     ids = list(map(lambda x: x.split("/")[-1], glob.glob(f"../data/final/*")))
     for id in tqdm(ids, total=len(ids)):
         for i in range(n):
+            centroids = np.load(f"../data/final/{id}/centroids_{jaw}_{i}.npy")
             distance_map = np.load(f"../data/final/{id}/distance_map_{jaw}_{i}.npy")
-            score_map = score_mapper(distance_map, distance_map_mean, distance_map_std, distance_map_cov)
+            score_map = score_mapper(distance_map, distance_map_mean, distance_map_std, distance_map_cov, centroids)
             np.save(f"../data/final/{id}/score_map_{jaw}_{i}.npy", score_map)
