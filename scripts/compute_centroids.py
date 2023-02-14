@@ -39,8 +39,11 @@ if __name__ == "__main__":
         instance_labels = np.array(labels["instances"])
         tooth_labels = np.array(labels["labels"])
         # Remove gums
-        instance_labels = np.delete(instance_labels, instance_labels == 0)
-        tooth_labels = np.delete(tooth_labels, tooth_labels == 0)
+        i_gum = tooth_labels == 0
+        instance_labels = np.delete(instance_labels, i_gum)
+        tooth_labels = np.delete(tooth_labels, i_gum)
+        vertices = mesh.vertices
+        vertices = np.delete(vertices, i_gum, axis=0)
         tooth_labels = encoder.transform(tooth_labels)
         # Find dummy tooth and assign it label 17
         tooth_labels_unique = np.unique(tooth_labels)
@@ -53,7 +56,7 @@ if __name__ == "__main__":
             if len(tooth_instance_labels_unique) == 2:
                 tooth_labels[instance_labels == tooth_instance_labels_unique[-1]] = n_teeth - 1
         # Find the tooth centroids of the jaw mesh, given the vertices
-        centroids = centroid_mapper(mesh.vertices, tooth_labels)
+        centroids = centroid_mapper(vertices, tooth_labels)
         if not os.path.exists(f"../data/processed/{id}"):
             os.mkdir(f"../data/processed/{id}")
         # Save the tooth centroids
