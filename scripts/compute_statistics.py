@@ -2,6 +2,7 @@
 Compute means and standard deviations corresponding to (x, y, z) differences between each tooth-tooth centroid difference.
 """
 import numpy as np
+from tqdm import tqdm
 
 from scripts.utils import arg_parser
 
@@ -28,12 +29,13 @@ if __name__ == "__main__":
     # Parse args
     parser = arg_parser.create_parser()
     args = parser.parse_args()
+    print(args)
     jaw = args.jaw
     n_teeth = args.teeth
     ids = np.load("../data/split/ids_train.npy")
     distance_map_cov_mapper = DistanceMapCov()
     distance_map_acc = []
-    for id in ids:
+    for id in tqdm(ids, total=len(ids)):
         distance_map = np.load(f"../data/processed/{id}/distance_map_{jaw}.npy")
         distance_map_acc.append(distance_map)
     distance_map_acc = np.array(distance_map_acc)

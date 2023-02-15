@@ -15,5 +15,5 @@ def create_parser():
     parser.add_argument("-sm", "--score_mode", type=str, help="The score mode", default="univariate",
                         choices=["univariate", "multivariate"])
     parser.add_argument("-n", "--n_samples", type=int, help="The number of samples created for each patient.",
-                        default=1)
+                        default=10)
     return parser
