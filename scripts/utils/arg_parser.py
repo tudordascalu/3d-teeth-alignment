@@ -14,6 +14,6 @@ def create_parser():
     parser.add_argument("-t", "--teeth", type=int, help="Number of teeth.", default=17)
     parser.add_argument("-sm", "--score_mode", type=str, help="The score mode", default="univariate",
                         choices=["univariate", "multivariate"])
-    parser.add_argument("-n", "--n_samples", type=int, help="The number of samples created for eacah patient.",
-                        default=10)
+    parser.add_argument("-n", "--n_samples", type=int, help="The number of samples created for each patient.",
+                        default=1)
     return parser

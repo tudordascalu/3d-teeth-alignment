@@ -25,4 +25,8 @@ class DistanceMapper:
         # For each tooth, compute the distance to all other present teeth
         for tooth_label in tooth_labels:
             distance_map[tooth_label, tooth_labels] = centroids[tooth_label] - centroids[tooth_labels]
+        # Set scores to 0s for missing teeth
+        missing_teeth = np.where((centroids == np.array([0, 0, 0])).all(axis=1))[0]
+        distance_map[missing_teeth] = np.zeros((self.n_teeth, 3))
+        distance_map[:, missing_teeth] = np.zeros((self.n_teeth, len(missing_teeth), 3))
         return distance_map

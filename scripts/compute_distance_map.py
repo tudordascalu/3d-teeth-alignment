@@ -11,7 +11,8 @@ if __name__ == "__main__":
     # Parse args
     parser = arg_parser.create_parser()
     args = parser.parse_args()
-    dir = args.dir  # "final" | "processed"
+    print(args)
+    dir = "final"  # "final" | "processed"
     jaw = args.jaw
     n = args.n_samples
 
