@@ -13,19 +13,18 @@ class TestToothSwapper(unittest.TestCase):
         self.assertEqual(swapper.max_swaps, 3)
 
     def test_call(self):
-        np.random.seed(22)
-        swapper = ToothSwapper()
-        centroids = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-        labels = np.array([0, 1, 2])
+        np.random.seed(13)
+        swapper = ToothSwapper(n_teeth=5)
+        centroids = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12], [13, 14, 15]])
+        labels = np.array([0, 1, 2, 3, 4])
         centroids, labels = swapper(centroids, labels)
-        self.assertTrue((centroids == np.array([[1, 2, 3], [7, 8, 9], [4, 5, 6]])).all())
-        self.assertTrue((labels == np.array([0, 2, 1])).all())
+        self.assertTrue((centroids == np.array([[4, 5, 6], [1, 2, 3], [10, 11, 12], [7, 8, 9], [13, 14, 15]])).all())
+        self.assertTrue((labels == np.array([1, 0, 3, 2, 4])).all())
 
     def test__swap(self):
-        np.random.seed(10)
         centroids = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
         labels = np.array([0, 1, 2])
-        centroids, labels = ToothSwapper._swap(centroids, labels)
+        centroids, labels = ToothSwapper._swap(centroids, labels, 0, 2)
         self.assertTrue((centroids == np.array([[7, 8, 9], [4, 5, 6], [1, 2, 3]])).all())
         self.assertTrue((labels == np.array([2, 1, 0])).all())
 
