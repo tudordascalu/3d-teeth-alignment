@@ -7,12 +7,14 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 if __name__ == "__main__":
-    # Patients to remove because of various reasons
-    ids_remove = ["0169NHT6", "01KTRG9K", "0154T9CN"]
+    # Patients with bad data
+    ids_bad = ["0169NHT6", "01KTRG9K", "0154T9CN"]
     # Here are all patients containing double teeth. We only have cases of double teeth on the upper jaw.
-    ids_double_tooth = np.array(["0169NHT6", "Y48DURWV", "0154T9CN", "0140E7V2"])
-    # Filter out double teeth
+    ids_double_tooth = np.array(["Y48DURWV", "0140E7V2"])  # also "0169NHT6", "0154T9CN"
     ids = list(map(lambda x: x.split("/")[-1], glob.glob("../data/processed/*")))
+    # Filter out double teeth
+    ids_remove = np.concatenate((ids_bad, ids_double_tooth))
+    ids = list(filter(lambda x: x not in ids_remove, ids))
     # Perform train-test split
     ids_train, ids_test = train_test_split(ids, train_size=497, random_state=42)
     ids_train, ids_val = train_test_split(ids_train, train_size=449, random_state=42)
