@@ -66,6 +66,7 @@ if __name__ == "__main__":
     centroid_mapper = CentroidMapper(n_teeth)
     # Compute patient ids
     ids = list(map(lambda x: x.split("/")[-1], glob.glob("../data/raw/patient_labels/*")))
+    ids_test = np.load("../data/split/ids_test.npy")
     # Iterate over each patient id.
     for id in tqdm(ids, total=len(ids)):
         # Try to load the patient's jaw mesh in .obj format. If it fails, try to load it in .stl format
@@ -74,8 +75,12 @@ if __name__ == "__main__":
         except:
             mesh = trimesh.load(f"../data/raw/patient_stl/{id}/{id}_{jaw}.stl", process=False)
         # Load the patient's labels, which are stored in a .json file
-        with open(f"../data/raw/patient_labels/{id}/{id}_{jaw}.json", "r") as f:
-            labels = json.load(f)
+        if id in ids_test:
+            with open(f"../data/raw/predicted_patient_labels/{id}_{jaw}.json", "r") as f:
+                labels = json.load(f)
+        else:
+            with open(f"../data/raw/patient_labels/{id}/{id}_{jaw}.json", "r") as f:
+                labels = json.load(f)
         # Convert the labels to numpy arrays.
         instance_labels = np.array(labels["instances"])
         tooth_labels = np.array(labels["labels"])

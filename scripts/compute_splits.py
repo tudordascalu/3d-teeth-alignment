@@ -11,7 +11,7 @@ if __name__ == "__main__":
     ids_bad = ["0169NHT6", "01KTRG9K", "0154T9CN"]
     # Here are all patients containing double teeth. We only have cases of double teeth on the upper jaw.
     ids_double_tooth = np.array(["Y48DURWV", "0140E7V2"])  # also "0169NHT6", "0154T9CN"
-    ids = list(map(lambda x: x.split("/")[-1], glob.glob("../data/processed/*")))
+    ids = list(map(lambda x: x.split("/")[-1], glob.glob("../data/raw/patient_labels/*")))
     # Filter out double teeth
     ids_remove = np.concatenate((ids_bad, ids_double_tooth))
     ids = list(filter(lambda x: x not in ids_remove, ids))

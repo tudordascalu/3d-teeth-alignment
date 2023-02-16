@@ -16,7 +16,7 @@ if __name__ == "__main__":
     dataset = AlignmentDataset(ids=ids, **dataset_args)
     loader_args = dict(batch_size=config["batch_size"], num_workers=0, pin_memory=True)
     loader_test = DataLoader(dataset, **loader_args)
-    model = AlignmentNet.load_from_checkpoint("checkpoints/version_130/checkpoints/epoch=29-step=29.ckpt")
+    model = AlignmentNet.load_from_checkpoint("checkpoints/version_146/checkpoints/epoch=30-step=30.ckpt")
     assignment_solver = AssignmentSolver()
 
     y_acc = []
@@ -32,15 +32,21 @@ if __name__ == "__main__":
         y = y.argmax(0).numpy()
         y_pred_default = np.arange(17)
         i_delete_acc = []
-        for ii, tooth in enumerate(y):
-            if tooth not in present_teeth:
-                i_delete_acc.append(ii)
-        y = np.delete(y, i_delete_acc)
-        y_pred = np.delete(y_pred, i_delete_acc)
+        # for ii, tooth in enumerate(y):
+        #     if tooth not in present_teeth:
+        #         i_delete_acc.append(ii)
+        # y = np.delete(y, i_delete_acc)
+        # y_pred = np.delete(y_pred, i_delete_acc)
         y_pred_default = np.delete(y_pred_default, i_delete_acc)
         y_acc.extend(y)
         y_pred_acc.extend(y_pred)
         y_pred_default_acc.extend(y_pred_default)
         print(f"-- {id}")
         print(f"y {y}")
-        print(f"y_pred {y_pred}")
+        print(f"p {y_pred}")
+
+    y = np.array(y_acc)
+    y_pred_acc = np.array(y_pred_acc)
+    y_pred_default_acc = np.array(y_pred_default_acc)
+    print(f"AI: {sum(y == y_pred_acc) / len(y_pred_acc)}")
+    print(f"Default: {sum(y == y_pred_default_acc) / len(y_pred_default_acc)}")
