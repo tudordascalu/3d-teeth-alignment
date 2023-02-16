@@ -16,7 +16,7 @@ if __name__ == "__main__":
     dataset = AlignmentDataset(ids=ids, **dataset_args)
     loader_args = dict(batch_size=config["batch_size"], num_workers=0, pin_memory=True)
     loader_test = DataLoader(dataset, **loader_args)
-    model = AlignmentNet.load_from_checkpoint("checkpoints/version_146/checkpoints/epoch=30-step=30.ckpt")
+    model = AlignmentNet.load_from_checkpoint("checkpoints/version_147/checkpoints/epoch=28-step=28.ckpt")
     assignment_solver = AssignmentSolver()
 
     y_acc = []
