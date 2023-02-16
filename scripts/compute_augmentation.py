@@ -12,6 +12,7 @@ if __name__ == "__main__":
     p_dummy = args.p_dummy
     p_missing = args.p_missing
     n_teeth = args.teeth
+    max_missing = args.max_missing
     print(args)
     jaw = args.jaw
     ids = list(map(lambda x: x.split("/")[-1], glob.glob(f"../data/processed/*")))
@@ -23,7 +24,8 @@ if __name__ == "__main__":
             centroids = dummy_tooth_generator(centroids)
         # Remove tooth w.p "p_missing"
         if np.random.rand() <= p_missing:
+            n_remove = np.random.randint(1, max_missing + 1)
             # Avoid removing dummy and wisdom teeth as they are scarce
-            i = np.random.randint(1, n_teeth - 2)
-            centroids[i] = np.array([0, 0, 0])
+            i_remove = np.random.choice(np.arange(1, n_teeth - 2), size=n_remove, replace=False)
+            centroids[i_remove] = np.array([0, 0, 0])
         np.save(f"../data/processed/{id}/centroids_augmented_{jaw}.npy", centroids)

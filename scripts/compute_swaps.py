@@ -72,7 +72,7 @@ if __name__ == "__main__":
     tooth_swapper = ToothSwapper(n_teeth=n_teeth, neighbor_range=2, max_swaps=max_swaps)
     for id in tqdm(ids, total=len(ids)):
         for i in range(n):
-            centroids = np.load(f"../data/processed/{id}/centroids_{jaw}.npy")
+            centroids = np.load(f"../data/processed/{id}/centroids_augmented_{jaw}.npy")
             centroids, labels = tooth_swapper(centroids, np.arange(0, n_teeth))
             if not os.path.exists(f"../data/final/{id}"):
                 os.mkdir(f"../data/final/{id}")

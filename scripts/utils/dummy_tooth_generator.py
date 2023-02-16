@@ -105,8 +105,8 @@ class AxialPlane:
 
 
 if __name__ == "__main__":
-    centroids = np.load("../../data/processed/0JN50XQR/centroids_lower.npy")
-    # centroids = np.load("../../data/processed/0JN50XQR/centroids_augmented_lower.npy")
+    centroids = np.load("../../data/processed/0OF8OOCX/centroids_lower.npy")
+    # centroids = np.load("../../data/processed/0OF8OOCX/centroids_augmented_lower.npy")
     # dummy_tooth_generator = DummyToothGenerator(n_teeth=17)
     # centroids = dummy_tooth_generator(centroids)
     # Visualization

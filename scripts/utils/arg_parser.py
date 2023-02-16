@@ -20,4 +20,6 @@ def create_parser():
                         default=.5)
     parser.add_argument("-pm", "--p_missing", type=float, help="The probability of removing a tooth.",
                         default=.5)
+    parser.add_argument("-mm", "--max_missing", type=int, help="The probability of removing a tooth.",
+                        default=4)
     return parser
