@@ -16,4 +16,8 @@ def create_parser():
                         choices=["univariate", "multivariate"])
     parser.add_argument("-n", "--n_samples", type=int, help="The number of samples created for each patient.",
                         default=10)
+    parser.add_argument("-pd", "--p_dummy", type=float, help="The probability of injecting a dummy tooth.",
+                        default=.5)
+    parser.add_argument("-pm", "--p_missing", type=float, help="The probability of removing a tooth.",
+                        default=.5)
     return parser

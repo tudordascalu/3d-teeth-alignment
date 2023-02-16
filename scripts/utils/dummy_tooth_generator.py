@@ -6,7 +6,7 @@ import plotly.express as px
 
 
 class DummyToothGenerator:
-    def __init__(self, n_teeth=17, min_dist=5, max_dist=15, ):
+    def __init__(self, n_teeth=17, min_dist=5, max_dist=15, max_noise_dist=2):
         """
 
         :param axial_plane: np.array of shape (n_points, n_dim) including points belonging to the plane
@@ -18,6 +18,7 @@ class DummyToothGenerator:
         self.missing_teeth_detector = MissingTeethDetector()
         self.min_dist = min_dist
         self.max_dist = max_dist
+        self.max_noise_dist = max_noise_dist
         self.axial_plane = AxialPlane()
 
     def __call__(self, centroids):
@@ -51,7 +52,7 @@ class DummyToothGenerator:
         else:
             dummy_tooth_centroid = p - alpha * intp
         # Randomly offset dummy_tooth_centroids by maximum of 1mm in the X, Y, Z axes
-        offset = np.random.choice(np.arange(-2, 2.1, step=.1), size=3)
+        offset = np.random.choice(np.arange(-self.max_noise_dist, self.max_noise_dist + .1, step=.1), size=3)
         # Set the centroid for the dummy tooth placeholder
         centroids[-1] = dummy_tooth_centroid + offset
         return centroids
@@ -104,17 +105,18 @@ class AxialPlane:
 
 
 if __name__ == "__main__":
-    centroids = np.load("../../data/processed/0KPHM46Q/centroids_lower.npy")
-    dummy_tooth_generator = DummyToothGenerator(n_teeth=17)
-    centroids = dummy_tooth_generator(centroids)
+    centroids = np.load("../../data/processed/0JN50XQR/centroids_lower.npy")
+    # centroids = np.load("../../data/processed/0JN50XQR/centroids_augmented_lower.npy")
+    # dummy_tooth_generator = DummyToothGenerator(n_teeth=17)
+    # centroids = dummy_tooth_generator(centroids)
     # Visualization
     centroids = centroids[np.where((centroids != np.array([0, 0, 0])).all(axis=1))[0]]
-    a, b, c = dummy_tooth_generator.axial_plane.plane
+    # a, b, c = dummy_tooth_generator.axial_plane.plane
     fig = px.scatter_3d(x=centroids[:, 0], y=centroids[:, 1], z=centroids[:, 2])
-    fig.add_trace(px.line_3d(x=[c[0], a[0]],
-                             y=[c[1], a[1]],
-                             z=[c[2], a[2]]).data[0])
-    fig.add_trace(px.line_3d(x=[c[0], b[0]],
-                             y=[c[1], b[1]],
-                             z=[c[2], b[2]]).data[0])
+    # fig.add_trace(px.line_3d(x=[c[0], a[0]],
+    #                          y=[c[1], a[1]],
+    #                          z=[c[2], a[2]]).data[0])
+    # fig.add_trace(px.line_3d(x=[c[0], b[0]],
+    #                          y=[c[1], b[1]],
+    #                          z=[c[2], b[2]]).data[0])
     fig.show()
