@@ -60,7 +60,7 @@ if __name__ == "__main__":
     # Parse args
     parser = arg_parser.create_parser()
     args = parser.parse_args()
-    jaw = "lower"
+    jaw = args.jaw
     n_teeth = args.teeth
     encoder = ToothLabelEncoder.encoder(jaw)
     centroid_mapper = CentroidMapper(n_teeth)
