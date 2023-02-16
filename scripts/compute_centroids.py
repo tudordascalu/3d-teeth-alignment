@@ -76,14 +76,25 @@ if __name__ == "__main__":
             mesh = trimesh.load(f"../data/raw/patient_stl/{id}/{id}_{jaw}.stl", process=False)
         # Load the patient's labels, which are stored in a .json file
         if id in ids_test:
-            with open(f"../data/raw/predicted_patient_labels/{id}_{jaw}.json", "r") as f:
-                labels = json.load(f)
+            try:
+                with open(f"../data/raw/predicted_patient_labels/{id}_{jaw}.json", "r") as f:
+                    labels = json.load(f)
+                    # Convert the labels to numpy arrays.
+                    instance_labels = np.array(labels["labels"])
+                    tooth_labels = np.array(labels["labels"])
+            except:
+                print(f"Failed fetching prediction for patient {id}.")
+                with open(f"../data/raw/patient_labels/{id}/{id}_{jaw}.json", "r") as f:
+                    labels = json.load(f)
+                    # Convert the labels to numpy arrays.
+                    instance_labels = np.array(labels["instances"])
+                    tooth_labels = np.array(labels["labels"])
         else:
             with open(f"../data/raw/patient_labels/{id}/{id}_{jaw}.json", "r") as f:
                 labels = json.load(f)
-        # Convert the labels to numpy arrays.
-        instance_labels = np.array(labels["instances"])
-        tooth_labels = np.array(labels["labels"])
+                # Convert the labels to numpy arrays.
+                instance_labels = np.array(labels["instances"])
+                tooth_labels = np.array(labels["labels"])
         # Remove gums
         gum_remover = GumRemover(0)
         tooth_labels, instance_labels, vertices = gum_remover(tooth_labels, instance_labels, mesh.vertices)
