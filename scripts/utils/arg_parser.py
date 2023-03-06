@@ -10,7 +10,7 @@ def create_parser():
                         choices=["lower", "upper"])
     parser.add_argument("-d", "--dir", type=str, help="The type of data to act on.", default="processed",
                         choices=["processed", "final"])
-    parser.add_argument("-s", "--swaps", type=int, help="Maximum number of swaps.", default=2)
+    parser.add_argument("-s", "--max_swaps", type=int, help="Maximum number of swaps.", default=2)
     parser.add_argument("-t", "--teeth", type=int, help="Number of teeth.", default=17)
     parser.add_argument("-sm", "--score_mode", type=str, help="The score mode", default="univariate",
                         choices=["univariate", "multivariate"])
@@ -19,6 +19,8 @@ def create_parser():
     parser.add_argument("-pd", "--p_dummy", type=float, help="The probability of injecting a dummy tooth.",
                         default=.5)
     parser.add_argument("-pm", "--p_missing", type=float, help="The probability of removing a tooth.",
+                        default=.5)
+    parser.add_argument("-ps", "--p_swap", type=float, help="The probability of swapping a pair of teeth.",
                         default=.5)
     parser.add_argument("-mm", "--max_missing", type=int, help="The probability of removing a tooth.",
                         default=4)

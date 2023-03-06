@@ -19,7 +19,7 @@ class ToothSwapper:
         :return: centroids and labels, with swapped teeth
         """
         i_swapped_acc = []
-        n_swaps = np.random.randint(0, self.max_swaps + 1)
+        n_swaps = np.random.randint(1, self.max_swaps + 1)
         j = 0
         while j < n_swaps:
             try:
