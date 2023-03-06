@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
 
-from scripts.compute_swaps import ToothSwapper
+from scripts.utils.tooth_swapper import ToothSwapper
 
 
 class TestToothSwapper(unittest.TestCase):
