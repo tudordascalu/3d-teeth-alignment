@@ -6,5 +6,13 @@ class MissingTeethDetector:
         pass
 
     def __call__(self, centroids, labels):
-        i_missing_teeth = np.where((centroids == np.array([0, 0, 0])).all(axis=1))[0]
-        return labels[i_missing_teeth]
+        return labels[np.where((centroids == np.array([0, 0, 0])).all(axis=1))[0]]
+
+
+class MissingTeethRemover:
+    def __init__(self):
+        self.missing_teeth_detector = MissingTeethDetector()
+
+    def __call__(self, centroids, labels):
+        labels_missing = self.missing_teeth_detector(centroids, labels)
+        return labels[~np.isin(labels, labels_missing)]
