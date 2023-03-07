@@ -1,5 +1,7 @@
 import numpy as np
 
+from scripts.utils.missing_teeth_detector import MissingTeethRemover
+
 
 class ToothSwapper:
     def __init__(self, n_teeth=17, neighbor_range=2, max_swaps=2):
@@ -10,12 +12,14 @@ class ToothSwapper:
         self.max_swaps = max_swaps
         self.n_teeth = n_teeth
         self.neighbor_range = neighbor_range
+        self.missing_teeth_remover = MissingTeethRemover()
 
     def __call__(self, centroids, labels):
         """
 
         :param centroids: array of centroids
-        :param labels: array of labels, where each element corresponds to a centroid
+        :param labels: array of labels, where each element corresponds to a centroid,
+            and they are sorted by proximity from left to right
         :return: centroids and labels, with swapped teeth
         """
         i_swapped_acc = []
@@ -23,8 +27,8 @@ class ToothSwapper:
         j = 0
         while j < n_swaps:
             try:
-                i_list = np.arange(0, self.n_teeth)
-                i_list = np.delete(i_list, i_swapped_acc)
+                i_list = self.missing_teeth_remover(centroids, np.arange(0, self.n_teeth))
+                i_list = i_list[~np.isin(i_list, i_swapped_acc)]
                 i_1 = np.random.choice(i_list, size=1)[0]
                 neighbors = np.arange(max(i_1 - self.neighbor_range, 0),
                                       min(i_1 + self.neighbor_range + 1, self.n_teeth))
