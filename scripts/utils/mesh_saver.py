@@ -3,11 +3,12 @@ class MeshSaver:
         self.colors = colors
 
     def __call__(self, mesh, tooth_labels, file_path):
+        mesh_processed = mesh.copy()
         # Color mesh
-        mesh.visual.vertex_colors = [self.colors[label] for label in tooth_labels]
+        mesh_processed.visual.vertex_colors = [self.colors[label] for label in tooth_labels]
         # Remove gums and missing teeth
         mask = tooth_labels != 0
-        face_mask = mask[mesh.faces].all(axis=1)
-        mesh.update_faces(face_mask)
+        face_mask = mask[mesh_processed.faces].all(axis=1)
+        mesh_processed.update_faces(face_mask)
         # Save mesh
-        mesh.export(file_path)
+        mesh_processed.export(file_path)
