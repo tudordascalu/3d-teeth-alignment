@@ -18,7 +18,10 @@ if __name__ == "__main__":
     # Define loaders
     loader_args = dict(batch_size=config["batch_size"], num_workers=0, pin_memory=True)
     loader_test = DataLoader(dataset_test, **loader_args)
-    model = AlignmentNet.load_from_checkpoint("checkpoints/version_148/checkpoints/epoch=39-step=39.ckpt")
+    if config["jaw"] == "upper":
+        model = AlignmentNet.load_from_checkpoint("checkpoints/version_148/checkpoints/epoch=39-step=39.ckpt")
+    else:
+        model = AlignmentNet.load_from_checkpoint("checkpoints/version_147/checkpoints/epoch=28-step=28.ckpt")
     trainer_args = dict(max_epochs=config["max_epochs"],
                         callbacks=[ModelCheckpoint(save_top_k=1,
                                                    monitor="val_loss",
