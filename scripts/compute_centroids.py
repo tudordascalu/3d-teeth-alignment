@@ -64,6 +64,8 @@ if __name__ == "__main__":
     n_teeth = args.teeth
     encoder = ToothLabelEncoder.encoder(jaw)
     centroid_mapper = CentroidMapper(n_teeth)
+    # Helpers
+    gum_remover = GumRemover(0)
     # Compute patient ids
     ids = list(map(lambda x: x.split("/")[-1], glob.glob("../data/raw/patient_labels/*")))
     ids_test = np.load("../data/split/ids_test.npy")
@@ -88,7 +90,6 @@ if __name__ == "__main__":
                 instance_labels = np.array(labels["instances"])
                 tooth_labels = np.array(labels["labels"])
         # Remove gums
-        gum_remover = GumRemover(0)
         tooth_labels, instance_labels, vertices = gum_remover(tooth_labels, instance_labels, mesh.vertices)
         # Encode labels
         tooth_labels = encoder.transform(tooth_labels)
