@@ -1,3 +1,6 @@
+import os.path
+
+import numpy as np
 import torch
 import pytorch_lightning as pl
 from torch.nn.functional import softmax
@@ -99,6 +102,18 @@ class AlignmentNet(pl.LightningModule):
         self.log("avg_loss", {"test": avg_loss})
         self.log("avg_accuracy", {"test": avg_accuracy})
         self.log("test_loss", avg_loss)
+
+    def predict_step(self, batch, batch_idx, **kwargs):
+        x_batch, y_batch, id_batch, sample_batch = batch
+        y_batch = y_batch.argmax(-1).cpu().detach().numpy()
+        y_pred_batch = self.forward(x_batch)
+        y_pred_batch, _ = self.assignment_solver(y_pred_batch.clone().cpu().detach().numpy())
+        for y, y_pred, id, sample in zip(y_batch, y_pred_batch, id_batch, sample_batch):
+            if not os.path.exists(f"output/aligner/{id}/"):
+                os.mkdir(f"output/aligner/{id}/")
+            np.save(f"output/aligner/{id}/labels_{self.config['jaw']}_{sample}", y)
+            np.save(f"output/aligner/{id}/labels_pred_{self.config['jaw']}_{sample}", y_pred)
+        return y_pred_batch
 
     def _loss(self, y_pred, y_true):
         """
