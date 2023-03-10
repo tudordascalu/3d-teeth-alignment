@@ -107,12 +107,14 @@ class AlignmentNet(pl.LightningModule):
         x_batch, y_batch, id_batch, sample_batch = batch
         y_batch = y_batch.argmax(-1).cpu().detach().numpy()
         y_pred_batch = self.forward(x_batch)
-        y_pred_batch, _ = self.assignment_solver(y_pred_batch.clone().cpu().detach().numpy())
-        for y, y_pred, id, sample in zip(y_batch, y_pred_batch, id_batch, sample_batch):
+        y_pred_aligned_batch, y_pred_2d_batch = self.assignment_solver(y_pred_batch.clone().cpu().detach().numpy())
+        for y, y_pred, y_pred_aligned, y_pred_2d, id, sample in zip(y_batch, y_pred_batch, y_pred_aligned_batch, y_pred_2d_batch, id_batch, sample_batch):
             if not os.path.exists(f"output/aligner/{id}/"):
                 os.mkdir(f"output/aligner/{id}/")
             np.save(f"output/aligner/{id}/labels_{self.config['jaw']}_{sample}", y)
-            np.save(f"output/aligner/{id}/labels_pred_{self.config['jaw']}_{sample}", y_pred)
+            np.save(f"output/aligner/{id}/labels_pred_activation_{self.config['jaw']}_{sample}", y_pred)
+            np.save(f"output/aligner/{id}/labels_pred_2d_{self.config['jaw']}_{sample}", y_pred_2d)
+            np.save(f"output/aligner/{id}/labels_pred_{self.config['jaw']}_{sample}", y_pred_aligned)
         return y_pred_batch
 
     def _loss(self, y_pred, y_true):

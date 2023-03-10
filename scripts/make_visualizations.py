@@ -14,10 +14,11 @@ from scripts.utils.tooth_label_encoder import ToothLabelEncoder
 
 if __name__ == "__main__":
     # Constants
-    # ids = np.load("../data/split/ids_test.npy")
-    # ids = ["S5VIQ478"]
-    jaw = "lower"
-    samples = np.load(f"../output/errors/sample_error_acc_{jaw}.npy")
+    jaw = "upper"
+    mode = "correct"  # "correct" | "error"
+    ext = "ply"  # "ply" | "obj"
+    samples = np.load(f"../output/correct/sample_correct_acc_{jaw}.npy")[
+              10:]  # [("01MAVT6A", 9)] was displayed in model summary
     # Helpers
     colors = np.load(f"../data/assets/colors.npy")
     mesh_saver = MeshSaver(colors)
@@ -25,8 +26,8 @@ if __name__ == "__main__":
     missing_teeth_detector = MissingTeethDetector()
     centroid_missing = np.array([0, 0, 0])
     for id, i in tqdm(samples, total=len(samples)):
-        if not os.path.exists(f"../output/errors/{id}/"):
-            os.mkdir(f"../output/errors/{id}/")
+        if not os.path.exists(f"../output/{mode}/{id}/"):
+            os.mkdir(f"../output/correct/{id}/")
         # Load data
         mesh = trimesh.load(f"../data/raw/patient_obj/{id}/{id}_{jaw}.obj", process=False)
         with open(f"../data/raw/patient_labels/{id}/{id}_{jaw}.json", "r") as f:
@@ -38,7 +39,7 @@ if __name__ == "__main__":
             # Convert the labels to numpy arrays.
             tooth_labels_pred = np.array(labels_pred["labels"])
         # Prepare ground truth mesh
-        mesh_saver(mesh, tooth_labels, f"../output/errors/{id}/gt_{jaw}.obj")
+        mesh_saver(mesh, tooth_labels, f"../output/{mode}/{id}/gt_{jaw}.{ext}")
         # Navigate all augmented instances
         # Load old labels, new labels and new centroids (following augmentation)
         old_labels = encoder.inverse_transform(np.arange(0, 17))
@@ -56,9 +57,9 @@ if __name__ == "__main__":
             else:
                 tooth_labels_candidate[tooth_labels_pred == old_label] = new_label
         # Save candidate mesh
-        mesh_saver(mesh, tooth_labels_candidate, f"../output/errors/{id}/candidate_{jaw}_{i}.obj")
+        mesh_saver(mesh, tooth_labels_candidate, f"../output/{mode}/{id}/candidate_{jaw}_{i}.{ext}")
         # Save ground truth mesh
-        mesh_saver(mesh, tooth_labels_gt, f"../output/errors/{id}/gt_{jaw}_{i}.obj")
+        mesh_saver(mesh, tooth_labels_gt, f"../output/{mode}/{id}/gt_{jaw}_{i}.{ext}")
         # Generate vertex labels following alignment
         tooth_labels_aligned = np.copy(tooth_labels_candidate)
         for old_label, predicted_label in zip(old_labels, predicted_labels):
@@ -69,4 +70,4 @@ if __name__ == "__main__":
             # else:
             tooth_labels_aligned[tooth_labels_candidate == old_label] = predicted_label
         # Save aligned mesh
-        mesh_saver(mesh, tooth_labels_aligned, f"../output/errors/{id}/aligned_{jaw}_{i}.obj")
+        mesh_saver(mesh, tooth_labels_aligned, f"../output/{mode}/{id}/aligned_{jaw}_{i}.{ext}")
