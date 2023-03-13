@@ -2,6 +2,8 @@
 This scripts navigates the test set and compares the distances compares the label of the centroids computed on the U-net
 outputs with the labels of their closest counterparts in the gold standard anotation.
 """
+import os
+
 import numpy as np
 from tqdm import tqdm
 
@@ -14,9 +16,10 @@ if __name__ == "__main__":
     centroid_missing = np.zeros(3)
 
     for id in tqdm(ids, total=len(ids)):
-        centroids = np.load(f"../data/processed/{id}/centroids_{args.jaw}_true.npy")
+        centroids = np.load(f"../data/processed/{id}/centroids_true_{args.jaw}.npy")
         centroids_pred = np.load(f"../data/processed/{id}/centroids_{args.jaw}.npy")
-        np.save(f"../data/processed/{id}/centroids_pred_{args.jaw}.npy", centroids_pred)
+        if not os.path.exists(f"../data/processed/{id}/centroids_pred_{args.jaw}.npy"):
+            np.save(f"../data/processed/{id}/centroids_pred_{args.jaw}.npy", centroids_pred)
         for label, centroid in enumerate(centroids):
             dif = np.linalg.norm(centroids_pred - centroid, axis=1)
             label_pred = np.argmin(dif)

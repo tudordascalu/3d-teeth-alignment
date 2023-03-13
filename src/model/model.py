@@ -18,17 +18,32 @@ class AlignmentNet(pl.LightningModule):
         self.conv_layers = torch.nn.Sequential(
             torch.nn.Conv2d(4, 16, (1, 3), padding="same", bias=False),
             torch.nn.ReLU(),
-            torch.nn.MaxPool2d((1, 2)),
+            # torch.nn.MaxPool2d((1, 2)),
             torch.nn.BatchNorm2d(16),
             torch.nn.Conv2d(16, 32, (1, 3), padding="same", bias=False),
             torch.nn.ReLU(),
-            torch.nn.MaxPool2d((1, 2)),
+            # torch.nn.MaxPool2d((1, 2)),
             torch.nn.BatchNorm2d(32),
-            torch.nn.Conv2d(32, 17, (1, 3), padding="same", bias=False),
+            torch.nn.Conv2d(32, 16, (1, 3), padding="same", bias=False),
             torch.nn.ReLU(),
-            torch.nn.MaxPool2d((1, 4)),
-            torch.nn.BatchNorm2d(17),
+            # torch.nn.MaxPool2d((1, 4)),
+            torch.nn.BatchNorm2d(16),
+            torch.nn.Conv2d(16, 1, (1, 3), padding="same", bias=False),
         )
+        # self.conv_layers = torch.nn.Sequential(
+        #     torch.nn.Conv2d(4, 16, (1, 3), padding="same", bias=False),
+        #     torch.nn.ReLU(),
+        #     torch.nn.MaxPool2d((1, 2)),
+        #     torch.nn.BatchNorm2d(16),
+        #     torch.nn.Conv2d(16, 32, (1, 3), padding="same", bias=False),
+        #     torch.nn.ReLU(),
+        #     torch.nn.MaxPool2d((1, 2)),
+        #     torch.nn.BatchNorm2d(32),
+        #     torch.nn.Conv2d(32, 17, (1, 3), padding="same", bias=False),
+        #     torch.nn.ReLU(),
+        #     torch.nn.MaxPool2d((1, 4)),
+        #     torch.nn.BatchNorm2d(17),
+        # )
 
         self.fc_layers = torch.nn.Sequential(
             torch.nn.Flatten(),
@@ -108,7 +123,8 @@ class AlignmentNet(pl.LightningModule):
         y_batch = y_batch.argmax(-1).cpu().detach().numpy()
         y_pred_batch = self.forward(x_batch)
         y_pred_aligned_batch, y_pred_2d_batch = self.assignment_solver(y_pred_batch.clone().cpu().detach().numpy())
-        for y, y_pred, y_pred_aligned, y_pred_2d, id, sample in zip(y_batch, y_pred_batch, y_pred_aligned_batch, y_pred_2d_batch, id_batch, sample_batch):
+        for y, y_pred, y_pred_aligned, y_pred_2d, id, sample in zip(y_batch, y_pred_batch, y_pred_aligned_batch,
+                                                                    y_pred_2d_batch, id_batch, sample_batch):
             if not os.path.exists(f"output/aligner/{id}/"):
                 os.mkdir(f"output/aligner/{id}/")
             np.save(f"output/aligner/{id}/labels_{self.config['jaw']}_{sample}", y)

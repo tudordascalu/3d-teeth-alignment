@@ -1,6 +1,8 @@
 """
 Computes the distance between each tooth-tooth pair. This should run following swap.
 """
+import glob
+
 import numpy as np
 from tqdm import tqdm
 from scripts.utils.distance_mapper import DistanceMapper
@@ -10,10 +12,7 @@ if __name__ == "__main__":
     # Parse args
     parser = arg_parser.create_parser()
     args = parser.parse_args()
-    print(args)
-
-    # ids = list(map(lambda x: x.split("/")[-1], glob.glob(f"../data/{dir}/*")))
-    ids = np.load("../data/split/ids_test.npy")
+    ids = list(map(lambda x: x.split("/")[-1], glob.glob(f"../data/{args.dir}/*")))
     distance_mapper = DistanceMapper()
     for id in tqdm(ids, total=len(ids)):
         if args.dir == "processed":

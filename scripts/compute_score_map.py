@@ -19,8 +19,7 @@ if __name__ == "__main__":
     distance_map_std = np.load(f"../data/statistics/distance_map_std_{args.jaw}.npy")
     score_mapper = ScoreMapper(args.teeth)
     # Compute ids
-    # ids = list(map(lambda x: x.split("/")[-1], glob.glob(f"../data/final/*")))
-    ids = np.load("../data/split/ids_test.npy")
+    ids = list(map(lambda x: x.split("/")[-1], glob.glob(f"../data/final/*")))
     for id in tqdm(ids, total=len(ids)):
         for i in range(args.n_samples):
             centroids = np.load(f"../data/final/{id}/centroids_{args.jaw}_{i}.npy")
