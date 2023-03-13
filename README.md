@@ -8,8 +8,9 @@ dental casts. The network is implemented using PyTorch-Lightning.
 1. Load RAW data in "data/raw" directory.
 2. For each jaw, run the preprocessing scripts included in "scripts" directory in the following order:
     1. `compute_centroids.py`
-    2. `order_test_centroids.py`
-    3. `compute_distance_map.py`
+    2. `order_test_centroids.py` (Note that this file expects true centroids for each test sample.)
+    3. `compute_distance_map.py` (Note that this should be computed for both "data/processed", and "data/final"
+       directories.)
     4. `compute_statistics.py`
     5. `compute_score_map.py`
 
